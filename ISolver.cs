@@ -2,6 +2,6 @@ namespace SudokuSolve
 {
     interface ISolver
     {
-        void Solve();
+        bool Solve(SimpleBoard board);
     }
 }
