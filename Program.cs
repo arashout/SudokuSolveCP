@@ -8,6 +8,7 @@ namespace SudokuSolve {
 
     class Program {
         static void Main (string[] args) {
+            // Handle piped input
             Console.SetIn (new System.IO.StreamReader (Console.OpenStandardInput (8192))); // This will allow input >256 chars
             while (Console.In.Peek () != -1) {
                 string line = Console.In.ReadLine ();
@@ -20,6 +21,9 @@ namespace SudokuSolve {
                 s.Solve (b);
                 b.Print ();
                 Console.WriteLine (new String ('-', 20));
+
+                CPSolver cps = new CPSolver(b);
+                break;
             }
         }
     }
