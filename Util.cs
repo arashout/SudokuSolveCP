@@ -1,7 +1,8 @@
 using System;
+using System.Diagnostics;
 
 namespace SudokuSolve {
-    static class UtilService {
+    static class Utils {
         public static int parseChar (char c) {
             int n;
             if (!int.TryParse (c.ToString (), out n)) throw new ArgumentException ($"{c} :is not a integer");
@@ -12,12 +13,31 @@ namespace SudokuSolve {
                 arr[i] = value;
             }
         }
+
+        public static int CalculateTileIndex(int r, int c){
+            return r*Const.N + c%Const.N;
+        }
+        public static string CalculateTileString(int i){
+            return $"{i/Const.N}{i%Const.N}";
+        }
+    }
+    /*
+    Need those since Debug.Assert(false) is not behaving properly
+     */
+    public static class CDebug {
+        [Conditional ("DEBUG")]
+
+        public static void Assert (this bool condition, string message = null) {
+            if (!condition) {
+                throw new Exception ($"Assertion failed with message:\n{message}");
+            };
+        }
     }
 
-    static class TestUtilService {
+    static class TestUtils {
         public static bool tilesCompare (int[, ] a, int[, ] b) {
-            for (int i = 0; i < Constants.N; i++) {
-                for (int j = 0; j < Constants.N; j++) {
+            for (int i = 0; i < Const.N; i++) {
+                for (int j = 0; j < Const.N; j++) {
                     if (a[i, j] != b[i, j]) return false;
                 }
             }
