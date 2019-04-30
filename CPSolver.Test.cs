@@ -1,7 +1,7 @@
 using System;
 using System.Collections.Generic;
 using System.Linq;
-using Xunit;
+using Xunit;    
 
 namespace SudokuSolve {
     public class CPSolverTest {

@@ -2,6 +2,11 @@ using System;
 using System.Diagnostics;
 
 namespace SudokuSolve {
+    static class Const {
+        public const int N = 9; // Board Size
+        public const int W = 3; // Square Width
+        public const int N2 = N * N;
+    }
     static class Utils {
         public static int parseChar (char c) {
             int n;
@@ -14,10 +19,10 @@ namespace SudokuSolve {
             }
         }
 
-        public static int CalculateTileIndex(int r, int c){
-            return r*Const.N + c%Const.N;
+        public static int CalculateTileIndex (int r, int c) {
+            return r * Const.N + c % Const.N;
         }
-        public static string CalculateTileString(int i){
+        public static string CalculateTileString (int i) {
             return $"{i/Const.N}{i%Const.N}";
         }
     }

@@ -107,7 +107,6 @@ namespace SudokuSolve {
             foreach (var c in possibleValues) {
                 // Make a copy in case we reach contradiction and need to revert back
                 var copy = cpb.Copy ();
-                Console.WriteLine ($"depth: {depth}\ttile: {freeTile.Key}\tpicked: {c}\tvalues: {possibleValues}");
                 bool didAssign = Assign (copy, freeTile.Key, c.ToString ());
                 CDebug.Assert (copy.Get (freeTile.Key) != cpb.Get (freeTile.Key), "Original CPB mutated!");
                 if (didAssign) {
