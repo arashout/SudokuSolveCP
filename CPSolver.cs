@@ -35,7 +35,8 @@ namespace SudokuSolve {
         }
 
         /// <summary>
-        /// Assign a single value to the tile and propagate changes
+        /// Assign a single value to the tile, propagate the changes via calls to Eliminate
+        /// NOTE: Method mutates the CPBoard cpb parameter
         /// </summary>
         /// <param name="cpb"></param>
         /// <param name="tileIndex"></param>
@@ -57,7 +58,9 @@ namespace SudokuSolve {
         }
 
         /// <summary>
-        /// Eliminate will remove the value from the tile, and return true if no contradictions are reached
+        /// Eliminate will remove the value from the tile and propagate changes via calls to Assign
+        /// if there is only a single value remaining
+        /// NOTE: This method mutates the CPBoard cpb parameter
         /// </summary>
         /// <param name="cpb"></param>
         /// <param name="tile"></param>
@@ -77,17 +80,17 @@ namespace SudokuSolve {
             var newValues = values.Replace (value, "");
             cpb.Set (tileIndex, newValues);
             // If there is only one possible value after the change 
-            // Eliminate this value from the tiles Peers
+            // Call assign to propagate changes
             if (newValues.Length == 1) {
-                foreach (var peer in Peers[tileIndex]) {
-                    if (!Eliminate (cpb, peer, newValues)) {
-                        return false;
-                    }
-                }
+                return Assign (cpb, tileIndex, newValues);
             }
 
             return true;
         }
+        /// <summary>
+        /// SearchResult struct is used to return the new board
+        /// as well as the result of the search used for decision making
+        /// </summary>
         public struct SearchResult {
             public CPBoard CPB;
             public bool DidSolve;
@@ -96,6 +99,14 @@ namespace SudokuSolve {
                 DidSolve = didSolve;
             }
         }
+
+        /// <summary>
+        /// Exhaustively try all possible values for the tiles, using constraints to 
+        /// reduce the search space
+        /// </summary>
+        /// <param name="cpb"></param>
+        /// <param name="depth"></param> Parameter debugging and curiousity
+        /// <returns></returns>
         static private SearchResult search (CPBoard cpb, int depth) {
             var freeTile = cpb.GetFreeTile ();
             // No free tile available
@@ -114,8 +125,13 @@ namespace SudokuSolve {
                     if (sr.DidSolve) return sr;
                 }
             }
-            return new SearchResult(cpb, false);
+            return new SearchResult (cpb, false);
         }
+        /// <summary>
+        /// Helper function for the search function
+        /// </summary>
+        /// <param name="cpb"></param>
+        /// <returns></returns>
         static public SearchResult Solve (CPBoard cpb) {
             if (!InitializeConstraints (cpb)) {
                 return new SearchResult (cpb, false);
@@ -125,6 +141,10 @@ namespace SudokuSolve {
 
         /// <summary>
         /// For a the puzzle to be solved, each tile within a unit must have distinct value
+        /// A unit is either:
+        /// - a row (1x9)
+        /// - a column (9x1)
+        /// - a square (3x3)
         /// </summary>
         /// <returns></returns>
         static public bool IsSolved (CPBoard cpb) {
@@ -184,7 +204,8 @@ namespace SudokuSolve {
 
     class CPBoard {
 
-        // Tiles will contain all the possible values
+        // Tiles will contain all the possible values without constraints
+        // Basically as defined by user
         private string[] Tiles = new string[Const.N2];
 
         public CPBoard (string board) {
@@ -200,16 +221,10 @@ namespace SudokuSolve {
                 }
             }
         }
-        private CPBoard (string[] tiles) {
-            for (int i = 0; i < tiles.Length; i++) {
-                Tiles[i] = String.Copy (tiles[i]);
-            }
-        }
-
-        public string Get (int index) {
-            return Tiles[index];
-        }
-
+        /// <summary>
+        /// Returns a tile that is still undecided in terms of it's final value
+        /// </summary>
+        /// <returns></returns>
         public KeyValuePair<int, string> GetFreeTile () {
             return Tiles
                 .Select ((values, i) => new KeyValuePair<int, string> (i, values))
@@ -217,14 +232,35 @@ namespace SudokuSolve {
                 .FirstOrDefault ();
         }
 
-        public void Set (int index, string value) {
-            // CDebug.Assert (Tiles[index].Contains (value), $"Not a possible value {Tiles[index]}{value}");
-            Tiles[index] = value;
+        /// <summary>
+        /// Constructor used for creating deep copies
+        /// </summary>
+        /// <param name="tiles"></param>
+        private CPBoard (string[] tiles) {
+            for (int i = 0; i < tiles.Length; i++) {
+                Tiles[i] = String.Copy (tiles[i]);
+            }
         }
-
+        /// <summary>
+        /// Deep copy function that uses the private constructor
+        /// Useful reverting calls from Assign and Eliminate
+        /// Copy function is a convience function for the private constructor
+        /// </summary>
+        /// <returns></returns>
         public CPBoard Copy () {
             CPBoard copy = new CPBoard (Tiles);
             return copy;
+        }
+
+        ///
+        /// Functions below are largely convenience functions
+        /// Useful for debugging and observation
+
+        public string Get (int index) {
+            return Tiles[index];
+        }
+        public void Set (int index, string value) {
+            Tiles[index] = value;
         }
 
         /// <summary>
