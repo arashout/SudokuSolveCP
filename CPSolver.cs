@@ -5,8 +5,11 @@ using System.Text;
 
 namespace SudokuSolve {
     static class CPSolver {
-        // TODO: Could use readonly here -> Need to update language version
-        // TODO: Make these private
+        // @TODO 
+        // @tbody: - Could use readonly here but need to update langauge version
+        // - Also might make sense to use immutable hashsets for Peers and Units
+        // or create a mechanism that disallows tampering e.g. Return new HashSet<int>(Peers).AsReadOnly()
+        
         static public HashSet<int>[] Peers { get; }
         static public HashSet<int>[] Units { get; }
 
@@ -23,7 +26,13 @@ namespace SudokuSolve {
             populatePeers ();
         }
 
-        // TODO: Rename? Also make private for only using in solve?
+        /// <summary>
+        /// This function should be called on a initially "unconstrained" CPBoard
+        /// before the solving step, however it is not set to private because 
+        /// it is fun to see the incremental effects of constraining values before searching
+        /// </summary>
+        /// <param name="cpb"></param>
+        /// <returns></returns>
         static internal bool InitializeConstraints (CPBoard cpb) {
             for (int i = 0; i < Const.N2; i++) {
                 var value = cpb.Get (i);
@@ -157,31 +166,36 @@ namespace SudokuSolve {
 
         /// <summary>
         /// Function that initializes the internal representation of the constraint propagotion board
+        /// by relating all the tiles to each other via their units
+        /// Each tile will have 20 peers comprised of the row, column and square peers
         /// </summary>
         static private void populatePeers () {
             var indices = Enumerable.Range (0, Const.N);
-            // TODO: Maybe reduce some duplicate code here?
+            // Helper function to reduce code duplication
+            // The index is for determining the offset in the array,
+            // basically row units are first 9, columns are second 9, squares are third 9
+            Action<HashSet<int>, int> relatePeers = (peers, unitIndex) => {
+                foreach (var peerIndex in peers)
+                {
+                    // Except statement is to exclude self from the relation
+                    Peers[peerIndex] = Peers[peerIndex].Union(peers).Except(new int[]{peerIndex}).ToHashSet();
+                    Units[unitIndex] = peers;
+                }
+            };
+
             foreach (var i in indices) {
                 var rowPeers = (from c in indices select Utils.CalculateTileIndex (i, c)).ToHashSet ();
-                foreach (var rp in rowPeers) {
-                    Peers[rp] = Peers[rp].Union (rowPeers).Except (new int[] { rp }).ToHashSet ();
-                    Units[i] = rowPeers;
-                }
+                relatePeers(rowPeers, i);
+                
                 var columnPeers = (from r in indices select Utils.CalculateTileIndex (r, i)).ToHashSet ();
-                foreach (var cp in columnPeers) {
-                    Peers[cp] = Peers[cp].Union (columnPeers).Except (new int[] { cp }).ToHashSet ();
-                    Units[i + Const.N] = columnPeers;
-                }
-                // Add square peers
+                relatePeers(columnPeers, i + Const.N);
+
                 int rs = i / Const.W;
                 int cs = i % Const.W;
                 var subRows = Enumerable.Range (0, Const.W).Select (j => rs * Const.W + j);
                 var subColumns = Enumerable.Range (0, Const.W).Select (j => cs * Const.W + j);
                 var squarePeers = (from r in subRows from c in subColumns select Utils.CalculateTileIndex (r, c)).ToHashSet ();
-                foreach (var sp in squarePeers) {
-                    Peers[sp] = Peers[sp].Union (squarePeers).Except (new int[] { sp }).ToHashSet ();
-                    Units[i + Const.N * 2] = squarePeers;
-                }
+                relatePeers(squarePeers, i + Const.N*2);
 
                 CDebug.Assert (Peers[i].Count == 20, $"Should be 20 peers each tile- {string.Join(',', Peers[i])}");
             }

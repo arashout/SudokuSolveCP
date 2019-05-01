@@ -12,11 +12,42 @@ namespace SudokuSolve {
         private const string bSolvable = "300200000000107000706030500070009080900020004010800050009040301000702000000008006";
         private readonly string bEmpty = new String ('0', Const.N2);
 
-        // [Fact]
-        // public void TestSolve () {
-        //     var cpb = new CPBoard (bSolvable);
-        //     // solver.PrintUnits();
-        // }
+        [Fact]
+        public void TestPeers(){
+            var peers = CPSolver.Peers;
+            Assert.Equal(Const.N2, peers.Length);
+            foreach(var peerSet in peers){
+                Assert.Equal(20, peerSet.Count);
+            }
+            var units = CPSolver.Units;
+            Assert.Equal(Const.N*3, units.Length);
+            foreach(var unitSet in units){
+                Assert.Equal(Const.N, unitSet.Count);
+            }
+
+            var peerSet0 = peers[0];
+            // Start at 1, since exluding self
+            Assert.DoesNotContain(0, peerSet0);
+            foreach(var i in Enumerable.Range(1, Const.N - 1)){
+                Assert.Contains(i, peerSet0); // Row Peers
+                Assert.Contains(i*Const.N, peerSet0); // Column Peers 
+            }
+            // Square peers
+            Assert.Contains(10, peerSet0);
+            Assert.Contains(11, peerSet0);
+            Assert.Contains(19, peerSet0);
+            Assert.Contains(20, peerSet0);
+
+            // Random peers that should not be contained
+            var peerSetNN = peers[Const.N2-1];
+            Assert.Equal(20, peerSetNN.Count);
+            var intersection = peerSet0.Intersect(peerSetNN);
+            Assert.Equal(2, intersection.Count());
+            Assert.Contains(Const.N - 1, intersection);
+            Assert.Contains(Const.N * Const.N - Const.N, intersection);
+
+
+        }
 
         [Fact]
         public void TestCopy () {
