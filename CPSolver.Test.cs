@@ -3,7 +3,7 @@ using System.Collections.Generic;
 using System.Linq;
 using Xunit;    
 
-namespace SudokuSolve {
+namespace ReactSudoku {
     public class CPSolverTest {
 
         private const string bSolvableByCP = "003020600900305001001806400008102900700000008006708200002609500800203009005010300";

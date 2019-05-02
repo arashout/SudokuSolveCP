@@ -3,7 +3,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 
-namespace SudokuSolve {
+namespace ReactSudoku {
     static class CPSolver {
         // @TODO 
         // @tbody: - Could use readonly here but need to update langauge version
@@ -264,6 +264,12 @@ namespace SudokuSolve {
         public CPBoard Copy () {
             CPBoard copy = new CPBoard (Tiles);
             return copy;
+        }
+
+        public string[] GetTiles(){
+            var tilesCopy = new string[Tiles.Length];
+            Tiles.CopyTo(tilesCopy, 0);
+            return tilesCopy;
         }
 
         ///

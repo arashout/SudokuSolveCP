@@ -1,7 +1,7 @@
 using System;
 using System.Diagnostics;
 
-namespace SudokuSolve {
+namespace ReactSudoku {
     static class Const {
         public const int N = 9; // Board Size
         public const int W = 3; // Square Width

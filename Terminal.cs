@@ -3,7 +3,7 @@ using System.Collections.Generic;
 using System.Diagnostics;
 using System.Linq;
 
-namespace SudokuSolve {
+namespace ReactSudoku {
 
     class Terminal {
         static void FakeMain (string[] args) {
