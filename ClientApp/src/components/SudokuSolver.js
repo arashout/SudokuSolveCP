@@ -49,7 +49,7 @@ export class SudokuSolver extends Component {
 
     render() {
         return (
-            <div className='w-100'>
+            <div className='w-100 text-center'>
                 <h1>Sudoku Solver <a href="https://github.com/arashout/SudokuSolveCP"><i class="fab fa-github"/></a></h1>
                 <h4>Grid Input</h4>
                 <div className='form-group'>
