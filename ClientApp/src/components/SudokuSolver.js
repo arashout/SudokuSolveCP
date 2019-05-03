@@ -38,7 +38,7 @@ export class SudokuSolver extends Component {
     }
 
     reset = () => {
-        this.setState({tiles: null})
+        this.setState({ tiles: null })
     }
 
     handleChange = (event) => {
@@ -50,7 +50,7 @@ export class SudokuSolver extends Component {
     render() {
         return (
             <div className='w-100'>
-                <h1>Sudoku Solver</h1>
+                <h1>Sudoku Solver <a href="https://github.com/arashout/SudokuSolveCP"><i class="fab fa-github"/></a></h1>
                 <h4>Grid Input</h4>
                 <div className='form-group'>
                     <textarea
